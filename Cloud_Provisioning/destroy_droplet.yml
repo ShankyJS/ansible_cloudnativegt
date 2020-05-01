@@ -1,0 +1,41 @@
+---
+  - name: Create droplet
+    hosts: localhost
+    gather_facts: false
+
+    # Corre:
+    # $ export DO_API_TOKEN=your-token
+    # Y corre este playbook con ansible-playbook destroy_droplet.yml 
+    tasks:
+      - digital_ocean_droplet:
+          unique_name: yes # Esto hace que sea indempotente.
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node1" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: absent
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet
+      
+      - digital_ocean_droplet:
+          unique_name: yes # "yes" makes it idempotent
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node2" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: absent
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet
+      
+      - digital_ocean_droplet:
+          unique_name: yes # "yes" makes it idempotent
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node3" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: absent
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet

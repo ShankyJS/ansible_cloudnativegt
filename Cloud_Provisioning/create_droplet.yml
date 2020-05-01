@@ -1,0 +1,65 @@
+---
+  - name: Create droplet
+    hosts: localhost
+    gather_facts: false
+
+    # Corre:
+    # $ export DO_API_TOKEN=your-token
+    # Y corre este playbook con ansible-playbook destroy_droplet.yml 
+    # Asegurate de tener el archivo inventory creado
+    tasks:
+      - digital_ocean_droplet:
+          unique_name: yes # Esto hace que este task sea idempotente
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node1" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: present
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet1
+      
+      - name: Print hosts
+        debug:
+          msg: "Node 1: ID is {{ created_droplet1.data.droplet.id }}, IP is {{ created_droplet1.data.ip_address }}"
+      
+      - digital_ocean_droplet:
+          unique_name: yes # Esto hace que este task sea idempotente
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node2" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: present
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet2
+      
+      - name: Print hosts
+        debug:
+          msg: "Node 2: ID is {{ created_droplet2.data.droplet.id }}, IP is {{ created_droplet2.data.ip_address }}"
+      
+      - digital_ocean_droplet:
+          unique_name: yes # Esto hace que este task sea idempotente
+          region: sfo2 # Region slug
+          image: ubuntu-18-04-x64 # Slug del sistema operativo de la vm.
+          wait: yes
+          name: "ansible-node3" # name of the droplet
+          size_id: s-1vcpu-1gb # Tamaño de la VM.
+          state: present
+          ssh_keys: [ '24697695' ] # <----- ID Unico de SSH creado por Digitalocean
+        register: created_droplet3
+  
+      - name: Print hosts
+        debug:
+          msg: "Node 3: ID is {{ created_droplet3.data.droplet.id }}, IP is {{ created_droplet3.data.ip_address }}"
+
+      - name : Combine all nodes into a single inventory.
+        blockinfile:
+          state: present
+          insertafter: EOF
+          dest: ./inventory
+          marker: "[ansible_nodes]"
+          content: |
+            {{ created_droplet1.data.ip_address }}
+            {{ created_droplet2.data.ip_address }}
+            {{ created_droplet3.data.ip_address }}
